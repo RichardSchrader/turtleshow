@@ -23,15 +23,17 @@ from turtle import *
 import numpy as np
 import math
 
+START_POS = [-450, -400]
+
 class Drone(Turtle):
 
-    def __init__(self):
+    def __init__(self, pos):
         '''Global inicialization for all Drone objects.'''
         super().__init__()
         self.shape('turtle')    # Turtle shape form.
         self.up()               # No drawing when moving.
         self.speed(2)           # Movement speed.
-        self.setpos(-400,-400)
+        self.setpos(pos)
 
     def getpos(self):
         return self.pos()
@@ -43,11 +45,7 @@ class DroneFleet:
 
     def __init__(self, size):
         self.size = size
-        self.fleet = [Drone() for i in range(size)]
-
-    def init(self):
-        for i, drone in enumerate(self.fleet):
-            drone.forward(20 * i)
+        self.fleet = [Drone([START_POS[0] + 20 * i, START_POS[1]]) for i in range(size)]
 
     def getpos(self):
         pos_array = []
@@ -86,9 +84,7 @@ def dist_min_index_array(fleet, target_array):
 
 
 wn = Screen()
-
 f1=DroneFleet(49) 
-f1.init()
 print(f1.getpos()) 
 target = np.array([[0, 100], [50, 50], [-50, 50], [-50, -50], [50, -50], [0, -100], [-100, 0], [100, 0], [100, 100],
 [-100, 100], [100, -100], [-100, -100], [0, 0], [0, 150], [0, -150], [150, 0], [-150, 0], [150, -150], [-150, 150],
@@ -96,6 +92,15 @@ target = np.array([[0, 100], [50, 50], [-50, 50], [-50, -50], [50, -50], [0, -10
 [-100, -150], [100, 50], [-100, 50], [100, -50], [-100, -50], [50, 100], [-50, 100], [50, -100], [-50, -100], [50, 0],
 [0, 50], [-50, 0], [0, -50], [150, 50], [-150, 50], [150, -50], [-150, -50], [50, 150], [50, -150], [-50, 150], [-50, -150]])
 print(target)
+out = dist_min_index_array(f1, target)
+print(out)
+f1.gominpos(out, target)
+
+target = np.array([[0, 100], [50, 50], [-50, 50], [-50, -50], [50, -50], [0, -100], [-100, 0], [100, 0], [100, 100],
+[-100, 100], [100, -100], [-100, -100], [0, 0], [0, 150], [0, -150], [150, 0], [-150, 0], [150, -150], [-200, -150],
+[-150, -150], [200, -150], [200, -100], [-200, -100], [150, -100], [-150, -100], [250, -150], [-250, -150], [100, -150],
+[-100, -150], [100, 50], [-100, 50], [100, -50], [-100, -50], [50, 100], [-50, 100], [50, -100], [-50, -100], [50, 0],
+[0, 50], [-50, 0], [0, -50], [150, 50], [-150, 50], [150, -50], [-150, -50], [50, 150], [50, -150], [-50, 150], [-50, -150]])
 out = dist_min_index_array(f1, target)
 print(out)
 f1.gominpos(out, target)
