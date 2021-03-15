@@ -24,6 +24,9 @@ import numpy as np
 import math
 
 #teste123
+#teste456
+for i in range(5):
+    pass
 
 class Drone(Turtle):
 
