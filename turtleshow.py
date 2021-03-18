@@ -25,6 +25,7 @@ import math
 
 START_POS = [-450, -400]
 
+
 class Drone(Turtle):
 
     def __init__(self, pos):
@@ -41,11 +42,13 @@ class Drone(Turtle):
     def gopos(self, pos):
         self.setpos(pos)
 
+
 class DroneFleet:
 
     def __init__(self, size):
         self.size = size
-        self.fleet = [Drone([START_POS[0] + 20 * i, START_POS[1]]) for i in range(size)]
+        self.fleet = [Drone([START_POS[0] + 20 * i, START_POS[1]])
+                      for i in range(size)]
 
     def getpos(self):
         pos_array = []
@@ -57,20 +60,25 @@ class DroneFleet:
 
     def gominpos(self, dist_min_index_array, target):
         for i in reversed(range(len(dist_min_index_array))):
-            self.fleet[dist_min_index_array[i][0]].gopos(target[dist_min_index_array[i][1]])
+            self.fleet[dist_min_index_array[i][0]].gopos(
+                target[dist_min_index_array[i][1]])
 
         #[self.fleet[index[0]].gopos(index[1]) for index in dist_min_index_array]
 
 
 def dist_array(pos, target_array):
     dist_array = []
-    [dist_array.append(math.dist(pos, target)) for target in target_array.tolist()]
+    [dist_array.append(math.dist(pos, target))
+     for target in target_array.tolist()]
     return dist_array
+
 
 def dist_matrix(pos_array, target_array):
     dist_matrix = []
-    [dist_matrix.append(dist_array(pos, target_array)) for pos in pos_array.tolist()]
+    [dist_matrix.append(dist_array(pos, target_array))
+     for pos in pos_array.tolist()]
     return np.array(dist_matrix)
+
 
 def dist_min_index_array(fleet, target_array):
     a = dist_matrix(fleet.getpos(), target_array)
@@ -79,30 +87,71 @@ def dist_min_index_array(fleet, target_array):
         ind = np.unravel_index(np.argmin(a, axis=None), a.shape)
         go_array.append(ind)
         a[ind[0], :] = np.inf
-        a[:, ind[1]] = np.inf  
+        a[:, ind[1]] = np.inf
     return go_array
 
 
-wn = Screen()
-f1=DroneFleet(49) 
-print(f1.getpos()) 
-target = np.array([[0, 100], [50, 50], [-50, 50], [-50, -50], [50, -50], [0, -100], [-100, 0], [100, 0], [100, 100],
-[-100, 100], [100, -100], [-100, -100], [0, 0], [0, 150], [0, -150], [150, 0], [-150, 0], [150, -150], [-150, 150],
-[-150, -150], [150, 150], [150, 100], [-150, 100], [150, -100], [-150, -100], [100, 150], [-100, 150], [100, -150],
-[-100, -150], [100, 50], [-100, 50], [100, -50], [-100, -50], [50, 100], [-50, 100], [50, -100], [-50, -100], [50, 0],
-[0, 50], [-50, 0], [0, -50], [150, 50], [-150, 50], [150, -50], [-150, -50], [50, 150], [50, -150], [-50, 150], [-50, -150]])
-print(target)
-out = dist_min_index_array(f1, target)
-print(out)
-f1.gominpos(out, target)
+def opt_min_index_array(dist_matrix):
+    index_array_with_sum = []
+    for j in range(len(dist_matrix)):
+        index_array_with_sum_temp = []
+        soma = 0
+        for i in range(len(dist_matrix)):
+            x = i + j
+            if x >= len(dist_matrix):
+                x = i + j - len(dist_matrix)
+            index_array_with_sum_temp.append([i, x])
+            soma += dist_matrix[i][x]
+        index_array_with_sum_temp.append(soma)
+        index_array_with_sum.append(index_array_with_sum_temp)
 
-target = np.array([[0, 100], [50, 50], [-50, 50], [-50, -50], [50, -50], [0, -100], [-100, 0], [100, 0], [100, 100],
-[-100, 100], [100, -100], [-100, -100], [0, 0], [0, 150], [0, -150], [150, 0], [-150, 0], [150, -150], [-200, -150],
-[-150, -150], [200, -150], [200, -100], [-200, -100], [150, -100], [-150, -100], [250, -150], [-250, -150], [100, -150],
-[-100, -150], [100, 50], [-100, 50], [100, -50], [-100, -50], [50, 100], [-50, 100], [50, -100], [-50, -100], [50, 0],
-[0, 50], [-50, 0], [0, -50], [150, 50], [-150, 50], [150, -50], [-150, -50], [50, 150], [50, -150], [-50, 150], [-50, -150]])
-out = dist_min_index_array(f1, target)
-print(out)
-f1.gominpos(out, target)
+    for j in reversed(range(len(dist_matrix))):
+        index_array_with_sum_temp = []
+        soma = 0
+        for i in range(len(dist_matrix)):
+            x = j - i
+            if x < 0:
+                x = j - i + len(dist_matrix)
+            print(i, x)
+            index_array_with_sum_temp.append([i, x])
+            soma += dist_matrix[i][x]
+        index_array_with_sum_temp.append(soma)
+        index_array_with_sum.append(index_array_with_sum_temp)
 
-wn.exitonclick()
+    return index_array_with_sum
+
+
+matriz = [[1, 5, 2], [3, 4, 8], [2, 7, 1]]
+
+opt_min_index_array(matriz)
+
+
+# wn = Screen()
+# f1 = DroneFleet(49)
+# print(f1.getpos())
+# target = np.array([[0, 100], [50, 50], [-50, 50], [-50, -50], [50, -50], [0, -100], [-100, 0], [100, 0], [100, 100],
+#                    [-100, 100], [100, -100], [-100, -100], [0, 0], [0,
+#                                                                     150], [0, -150], [150, 0], [-150, 0], [150, -150], [-150, 150],
+#                    [-150, -150], [150, 150], [150, 100], [-150, 100], [150, -
+#                                                                        100], [-150, -100], [100, 150], [-100, 150], [100, -150],
+#                    [-100, -150], [100, 50], [-100, 50], [100, -50], [-100, -
+#                                                                      50], [50, 100], [-50, 100], [50, -100], [-50, -100], [50, 0],
+#                    [0, 50], [-50, 0], [0, -50], [150, 50], [-150, 50], [150, -50], [-150, -50], [50, 150], [50, -150], [-50, 150], [-50, -150]])
+# print(target)
+# out = dist_min_index_array(f1, target)
+# print(out)
+# f1.gominpos(out, target)
+
+# target = np.array([[0, 100], [50, 50], [-50, 50], [-50, -50], [50, -50], [0, -100], [-100, 0], [100, 0], [100, 100],
+#                    [-100, 100], [100, -100], [-100, -100], [0, 0], [0, 150], [0, -
+#                                                                               150], [150, 0], [-150, 0], [150, -150], [-200, -150],
+#                    [-150, -150], [200, -150], [200, -100], [-200, -100], [150, -
+#                                                                           100], [-150, -100], [250, -150], [-250, -150], [100, -150],
+#                    [-100, -150], [100, 50], [-100, 50], [100, -50], [-100, -
+#                                                                      50], [50, 100], [-50, 100], [50, -100], [-50, -100], [50, 0],
+#                    [0, 50], [-50, 0], [0, -50], [150, 50], [-150, 50], [150, -50], [-150, -50], [50, 150], [50, -150], [-50, 150], [-50, -150]])
+# out = dist_min_index_array(f1, target)
+# print(out)
+# f1.gominpos(out, target)
+
+# wn.exitonclick()
